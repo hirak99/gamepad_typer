@@ -17,39 +17,23 @@ const char* kKeysArray[keyboardHeight][keyboardWidth] = {
 
 void DisplayKeyboard(int cursor_x, int cursor_y,
                      const std::string& current_text) {
-  system("clear");  // Clear the terminal (use "cls" on Windows)
+  // system("clear");  // Clear the terminal (use "cls" on Windows)
+  std::cerr
+      << "\033[2J\033[1;1H";  // Clear the screen and move cursor to top-left
+  std::cerr << "Type with gamepad: " << current_text << std::endl;
   for (int i = 0; i < keyboardHeight; ++i) {
     for (int j = 0; j < keyboardWidth; ++j) {
       if (i == cursor_y && j == cursor_x) {
-        std::cout << "[" << kKeysArray[i][j] << "] ";
+        std::cerr << "[" << kKeysArray[i][j] << "] ";
       } else {
-        std::cout << kKeysArray[i][j] << "  ";
+        std::cerr << kKeysArray[i][j] << "  ";
       }
     }
-    std::cout << std::endl;
+    std::cerr << std::endl;
   }
-  std::cout << current_text;
 }
 
-int main(int argc, char* argv[]) {
-  if (SDL_Init(SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS) < 0) {
-    std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError()
-              << std::endl;
-    return 1;
-  }
-
-  SDL_GameController* controller = SDL_GameControllerOpen(0);
-  if (!controller) {
-    std::cerr << "Could not open game controller! SDL_Error: " << SDL_GetError()
-              << std::endl;
-    SDL_Quit();
-    return 1;
-  }
-
-  // Redirect std::cout to a string stream to suppress prompts during user input
-  std::stringstream output;
-  std::streambuf* original_cout_buffer = std::cout.rdbuf(output.rdbuf());
-
+std::string GetUserText() {
   std::string input_text;
   SDL_Event event;
   int cursor_x = 0, cursor_y = 0;
@@ -68,7 +52,6 @@ int main(int argc, char* argv[]) {
           if (strcmp(selectedChar, "<-") == 0) {
             if (!input_text.empty()) input_text.pop_back();
           } else if (strcmp(selectedChar, "Enter") == 0) {
-            std::cout << "Final Text: " << input_text << std::endl;
             running = false;
           } else if (strcmp(selectedChar, "Quit") == 0) {
             running = false;
@@ -101,10 +84,32 @@ int main(int argc, char* argv[]) {
     }
   }
 
+  return input_text;
+}
+
+int main(int argc, char* argv[]) {
+  if (SDL_Init(SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS) < 0) {
+    std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError()
+              << std::endl;
+    return 1;
+  }
+
+  SDL_GameController* controller = SDL_GameControllerOpen(0);
+  if (!controller) {
+    std::cerr << "Could not open game controller! SDL_Error: " << SDL_GetError()
+              << std::endl;
+    SDL_Quit();
+    return 1;
+  }
+
+  // // Redirect std::cout to a string stream to suppress prompts during user
+  // input std::stringstream output; std::streambuf* original_cout_buffer =
+  // std::cout.rdbuf(output.rdbuf());
+
+  std::cout << GetUserText();
+
+  // std::cout.rdbuf(original_cout_buffer);
+
   SDL_GameControllerClose(controller);
   SDL_Quit();
-
-  std::cout.rdbuf(original_cout_buffer);
-  std::cout << "Final Text: " << input_text << std::endl;
-  return 0;
 }

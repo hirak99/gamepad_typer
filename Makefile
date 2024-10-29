@@ -4,26 +4,26 @@ CXXFLAGS = -std=c++11 -Wall
 
 LDFLAGS = -lSDL2
 
-TARGET = gamepad_typer
+TARGET = build/gamepad_typer
 
 SRCS = gamepad_typer.cpp
 
-OBJS = $(SRCS:.cpp=.o)
+OBJS = $(patsubst %.cpp,build/%.o,$(SRCS))
 
 # Default target
-all: $(TARGET)
+all: build $(TARGET)
 
-# Rule to build the executable
+build:
+	mkdir -p build
+
 $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
-# Rule to build object files
-%.o: %.cpp
+build/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Clean up build artifacts
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -rf build
 
 # Phony targets
-.PHONY: all clean
+.PHONY: all clean build
