@@ -20,7 +20,8 @@ void DisplayKeyboard(int cursor_x, int cursor_y,
   // system("clear");  // Clear the terminal (use "cls" on Windows)
   std::cerr
       << "\033[2J\033[1;1H";  // Clear the screen and move cursor to top-left
-  std::cerr << "Type with gamepad: " << current_text << std::endl;
+  std::string masked_text(current_text.length(), '*');
+  std::cerr << "Type with gamepad: " << masked_text << std::endl;
   for (int i = 0; i < keyboardHeight; ++i) {
     for (int j = 0; j < keyboardWidth; ++j) {
       if (i == cursor_y && j == cursor_x) {
