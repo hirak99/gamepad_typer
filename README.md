@@ -6,4 +6,13 @@ From the root, run -
 
 `make -j`
 
-This will create `build/game_typer` which you can run to type with gamepad.
+This will create `build/gamepad_typer`. It can be used to ask for inputs from a
+shell script.
+
+Here is how it can be used in a shell script -
+
+```sh
+#!/bin/bash
+PASS=$(/path/to/gamepad_typer)
+echo Password is: "$PASS"
+```

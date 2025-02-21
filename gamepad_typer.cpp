@@ -42,45 +42,45 @@ std::string GetUserText() {
   DisplayKeyboard(cursor_x, cursor_y, input_text);
 
   while (running) {
-    while (SDL_PollEvent(&event)) {
-      if (event.type == SDL_QUIT) {
-        running = false;
-      }
-      if (event.type == SDL_CONTROLLERBUTTONDOWN) {
-        if (event.cbutton.button == SDL_CONTROLLER_BUTTON_A) {
-          const char* selectedChar = kKeysArray[cursor_y][cursor_x];
-          if (strcmp(selectedChar, "<-") == 0) {
-            if (!input_text.empty()) input_text.pop_back();
-          } else if (strcmp(selectedChar, "Enter") == 0) {
-            running = false;
-          } else if (strcmp(selectedChar, "Quit") == 0) {
-            running = false;
-          } else {
-            input_text += selectedChar;
-          }
-          DisplayKeyboard(cursor_x, cursor_y, input_text);
-        } else if (event.cbutton.button == SDL_CONTROLLER_BUTTON_B) {
+    SDL_WaitEvent(&event);
+    if (event.type == SDL_QUIT) {
+      running = false;
+      break;
+    }
+    if (event.type == SDL_CONTROLLERBUTTONDOWN) {
+      if (event.cbutton.button == SDL_CONTROLLER_BUTTON_A) {
+        const char* selectedChar = kKeysArray[cursor_y][cursor_x];
+        if (strcmp(selectedChar, "<-") == 0) {
+          if (!input_text.empty()) input_text.pop_back();
+        } else if (strcmp(selectedChar, "Enter") == 0) {
           running = false;
-        }
-        // D-Pad navigation
-        if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_UP &&
-            cursor_y > 0) {
-          cursor_y--;
-        }
-        if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_DOWN &&
-            cursor_y < keyboardHeight - 1) {
-          cursor_y++;
-        }
-        if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_LEFT &&
-            cursor_x > 0) {
-          cursor_x--;
-        }
-        if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_RIGHT &&
-            cursor_x < keyboardWidth - 1) {
-          cursor_x++;
+        } else if (strcmp(selectedChar, "Quit") == 0) {
+          running = false;
+        } else {
+          input_text += selectedChar;
         }
         DisplayKeyboard(cursor_x, cursor_y, input_text);
+      } else if (event.cbutton.button == SDL_CONTROLLER_BUTTON_B) {
+        running = false;
       }
+      // D-Pad navigation
+      if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_UP &&
+          cursor_y > 0) {
+        cursor_y--;
+      }
+      if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_DOWN &&
+          cursor_y < keyboardHeight - 1) {
+        cursor_y++;
+      }
+      if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_LEFT &&
+          cursor_x > 0) {
+        cursor_x--;
+      }
+      if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_RIGHT &&
+          cursor_x < keyboardWidth - 1) {
+        cursor_x++;
+      }
+      DisplayKeyboard(cursor_x, cursor_y, input_text);
     }
   }
 
@@ -91,6 +91,11 @@ int main(int argc, char* argv[]) {
   if (SDL_Init(SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS) < 0) {
     std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError()
               << std::endl;
+    return 1;
+  }
+
+  if (SDL_NumJoysticks() <= 0) {
+    std::cerr << "No joysticks detected" << std::endl;
     return 1;
   }
 
